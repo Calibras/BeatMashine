@@ -8,6 +8,7 @@ import keyboard
 from scipy.io.wavfile import write
 import wave
 import time
+import timeit
 
 def aufnahme():
     duration = 5  # seconds
@@ -39,16 +40,16 @@ result =  AudioSegment.silent(duration=1)
 
 running = True
 print("aufnahme gestartet")
-lastSound = time.time()
+lastPress = timeit.default_timer()
 while running:
     eingabe = input()
     if eingabe == "a":
-        distans = time.time() -lastSound
-        print(distans)
-        waitSound = AudioSegment.silent(duration=distans)
-        result += waitSound
-        lastSound = time.time()
-        result += soundA
+        now = timeit.default_timer()
+        pauseLength = now - lastPress
+        lastPress = now
+        pauseSegment = AudioSegment.silent(duration=int(pauseLength * 1000))
+        result = result + pauseSegment
+        result = result + soundA
     elif eingabe == "s":
         result += soundB
     elif eingabe == "1":
