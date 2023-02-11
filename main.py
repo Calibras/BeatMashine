@@ -7,6 +7,11 @@ import numpy as np
 import keyboard
 from scipy.io.wavfile import write
 import timeit
+import time
+import os
+
+
+#sounds auf: https://www.musicca.com/drums
 
 def aufnahme():
     duration = 5  # seconds
@@ -63,11 +68,15 @@ combined.export("output.wav", format="wav")
 
 soundA = AudioSegment.from_wav("sounds/clap.wav")
 soundS = AudioSegment.from_wav("sounds/crash.wav")
-result =  AudioSegment.silent(duration=1)
+soundBass = AudioSegment.from_wav("bass.wav")
+
+
+#sound_crash = AudioSegment.from_mp3("DrumSet/crash.mp3.mp3")
+result = AudioSegment.empty()
 
 running = True
 print("aufnahme gestartet")
-lastPress = timeit.default_timer()
+lastPress = time.time()
 
 
 def on_press_k(e):
@@ -79,21 +88,29 @@ def on_press_a(e):
 def on_press_s(e):
     print("S wurde gedrückt")
     addSound(soundS)
+def on_press_f(e):
+    print("F wurde gedrückt")
+    addSound(soundBass)
+def on_press_g(e):
+    print("G wurde gedrückt")
+    #addSound(sound_crash)
 def addSound(sound):
     global result
     global lastPress
 
-    now = timeit.default_timer()
-    pauseLength = now - lastPress
-    pauseSegment = AudioSegment.silent(duration=int(pauseLength * 250))
-    lastPress = timeit.default_timer()
+    span = time.time() - lastPress
+    lastPress = time.time()
+    print(span)
+    pause_duration = int((span) * 1000)
+    if pause_duration > 0:
+        result += AudioSegment.silent(duration=pause_duration)
 
-    result = result + pauseSegment
     result = result + sound
 def main():
     keyboard.on_press_key("a", on_press_a)
     keyboard.on_press_key("k", on_press_k)
     keyboard.on_press_key("s", on_press_s)
+    keyboard.on_press_key("f", on_press_f)
     keyboard.wait("esc")
     export(result)
 
@@ -115,3 +132,5 @@ def spielerei():
     foo += soundA
     result.overlay(foo)
     export(soundA + soundA + soundS + soundA + soundA)
+
+main()
